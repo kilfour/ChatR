@@ -1,8 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace ChatR.Server;
 
-
+[Authorize]
 public class ChatHub(RoomTracker tracker) : Hub
 {
     private readonly RoomTracker tracker = tracker;
