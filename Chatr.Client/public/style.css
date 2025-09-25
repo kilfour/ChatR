@@ -1,0 +1,55 @@
+body {
+    background: #f0f0f0;
+    font-family: monospace;
+    margin: 20px;
+    color: #000;
+}
+
+h1 {
+    border-bottom: 2px solid #000;
+    padding-bottom: 4px;
+}
+
+h4 {
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+button {
+    background: #ddd;
+    border: 1px solid #000;
+    padding: 4px 8px;
+    margin: 2px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #ccc;
+}
+
+input {
+    display: block;
+    margin: 5px 0;
+    padding: 4px;
+    border: 1px solid #000;
+    background: #fff;
+}
+
+div {
+    margin-top: 10px;
+}
+
+.log {
+    border: 1px solid #000;
+    background: #fff;
+    padding: 5px;
+    height: 200px;
+    overflow-y: auto;
+}
+
+button.active-room {
+    background: #000;
+    color: #fff;
+    font-weight: bold;
+    border: 2px solid #000;
+}

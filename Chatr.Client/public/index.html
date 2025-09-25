@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="style.css">
+	<script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@7.0.0/dist/browser/signalr.min.js"></script>
+	<script type="text/javascript" src="main.js"></script>
+</head>
+
+<body></body>
+
+<script type="text/javascript">
+	const apiUrl = "http://localhost:5067";
+	let token = localStorage.getItem("jwt") || "";
+
+	async function login(username, password) {
+		const r = await fetch(`${apiUrl}/api/login`, {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({ username, password })
+		});
+		if (!r.ok) return false;
+		const data = await r.json();
+		token = data.token;
+		localStorage.setItem("jwt", token);
+		return true;
+	}
+
+	async function register(username, password) {
+		const r = await fetch(`${apiUrl}/api/register`, {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({ username, password })
+		});
+		if (!r.ok) return false;
+		const data = await r.json();
+		token = data.token;
+		localStorage.setItem("jwt", token);
+		return true;
+	}
+
+	var app = Elm.Main.init();
+	var connection = null;
+	(async () => {
+
+		app.ports.login.subscribe(async ([user, pass]) => {
+			var success = await login(user, pass);
+			if (success) {
+				await initializeConnection();
+				app.ports.onLoggedIn.send(success);
+			}
+		});
+
+		app.ports.register.subscribe(async ([user, pass]) => {
+			var success = await register(user, pass);
+			if (success) {
+				await initializeConnection();
+				app.ports.onLoggedIn.send(success);
+			}
+		});
+
+		app.ports.joinRoom.subscribe(room => {
+			connection.invoke("JoinRoom", room).catch(console.error);
+		});
+
+		app.ports.sendToRoom.subscribe(([room, user, msg]) => {
+			connection.invoke("SendToRoom", room, user, msg).catch(console.error);
+		});
+
+	})();
+
+	async function initializeConnection() {
+		connection = new signalR.HubConnectionBuilder()
+			.withUrl(`${apiUrl}/chat`, {
+				accessTokenFactory: () => localStorage.getItem("jwt") || "",
+				withCredentials: false
+			})
+			.withAutomaticReconnect()
+			.build();
+		await connection.start();
+		await connection.invoke("JoinRoom", "Alpha");
+		connection.on("ReceiveRoomMessage", (room, user, message) => {
+			app.ports.onRoomMessage.send(`${room}-${user}: ${message}`);
+		});
+	}
+</script>
+
+</html>
