@@ -5163,14 +5163,14 @@ var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
-			D: 'Alpha',
-			E: _List_Nil,
+			E: 'Alpha',
+			F: _List_Nil,
 			z: '',
 			v: '',
 			S: _List_fromArray(
 				['Alpha', 'Beta']),
 			n: '',
-			J: 0
+			C: 0
 		},
 		$elm$core$Platform$Cmd$none);
 };
@@ -5178,7 +5178,7 @@ var $author$project$Main$LoggedIn = function (a) {
 	return {$: 3, a: a};
 };
 var $author$project$Main$Received = function (a) {
-	return {$: 9, a: a};
+	return {$: 10, a: a};
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$json$Json$Decode$bool = _Json_decodeBool;
@@ -5219,6 +5219,12 @@ var $author$project$Main$login = _Platform_outgoingPort(
 					$elm$json$Json$Encode$string(a),
 					$elm$json$Json$Encode$string(b)
 				]));
+	});
+var $elm$json$Json$Encode$null = _Json_encodeNull;
+var $author$project$Main$logout = _Platform_outgoingPort(
+	'logout',
+	function ($) {
+		return $elm$json$Json$Encode$null;
 	});
 var $author$project$Main$register = _Platform_outgoingPort(
 	'register',
@@ -5277,52 +5283,58 @@ var $author$project$Main$update = F2(
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{J: 2}),
+						{C: 2}),
 					$elm$core$Platform$Cmd$none);
 			case 4:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{J: 1}),
-					$elm$core$Platform$Cmd$none);
+						{C: 0}),
+					$author$project$Main$logout(0));
 			case 5:
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{C: 1}),
+					$elm$core$Platform$Cmd$none);
+			case 6:
 				return _Utils_Tuple2(
 					model,
 					$author$project$Main$register(
 						_Utils_Tuple2(model.n, model.v)));
-			case 6:
+			case 7:
 				var m = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{z: m}),
 					$elm$core$Platform$Cmd$none);
-			case 7:
+			case 8:
 				var room = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{D: room}),
+						{E: room}),
 					$author$project$Main$joinRoom(room));
-			case 8:
+			case 9:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{z: ''}),
 					$author$project$Main$sendToRoom(
-						_Utils_Tuple3(model.D, model.n, model.z)));
+						_Utils_Tuple3(model.E, model.n, model.z)));
 			default:
 				var str = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							E: A2($elm$core$List$cons, str, model.E)
+							F: A2($elm$core$List$cons, str, model.F)
 						}),
 					$elm$core$Platform$Cmd$none);
 		}
 	});
-var $author$project$Main$GotoRegistering = {$: 4};
+var $author$project$Main$GotoRegistering = {$: 5};
 var $author$project$Main$Login = {$: 2};
 var $author$project$Main$UpdatePass = function (a) {
 	return {$: 1, a: a};
@@ -5462,7 +5474,7 @@ var $author$project$Main$loginView = function (model) {
 					]))
 			]));
 };
-var $author$project$Main$Register = {$: 5};
+var $author$project$Main$Register = {$: 6};
 var $author$project$Main$registerView = function (model) {
 	return A2(
 		$elm$html$Html$div,
@@ -5514,16 +5526,17 @@ var $author$project$Main$registerView = function (model) {
 			]));
 };
 var $author$project$Main$JoinRoom = function (a) {
-	return {$: 7, a: a};
+	return {$: 8, a: a};
 };
-var $author$project$Main$SendToRoom = {$: 8};
+var $author$project$Main$Logout = {$: 4};
+var $author$project$Main$SendToRoom = {$: 9};
 var $author$project$Main$UpdateMessage = function (a) {
-	return {$: 6, a: a};
+	return {$: 7, a: a};
 };
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $author$project$Main$roomsView = function (model) {
 	var roomButton = function (room) {
-		return _Utils_eq(room, model.D) ? A2(
+		return _Utils_eq(room, model.E) ? A2(
 			$elm$html$Html$button,
 			_List_fromArray(
 				[
@@ -5559,11 +5572,21 @@ var $author$project$Main$roomsView = function (model) {
 					])),
 				A2($elm$html$Html$div, _List_Nil, rooms),
 				A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Events$onClick($author$project$Main$Logout)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Log Out')
+					])),
+				A2(
 				$elm$html$Html$h4,
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text(model.n + ':')
+						$elm$html$Html$text(model.n)
 					])),
 				A2(
 				$elm$html$Html$input,
@@ -5601,11 +5624,11 @@ var $author$project$Main$roomsView = function (model) {
 									$elm$html$Html$text(m)
 								]));
 					},
-					model.E))
+					model.F))
 			]));
 };
 var $author$project$Main$view = function (model) {
-	var _v0 = model.J;
+	var _v0 = model.C;
 	switch (_v0) {
 		case 0:
 			return $author$project$Main$loginView(model);

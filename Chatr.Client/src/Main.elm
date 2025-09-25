@@ -9,6 +9,9 @@ import Html.Events exposing (onClick, onInput)
 port login : ( String, String ) -> Cmd msg
 
 
+port logout : () -> Cmd msg
+
+
 port onLoggedIn : (Bool -> msg) -> Sub msg
 
 
@@ -78,6 +81,7 @@ type Msg
     | UpdatePass String
     | Login
     | LoggedIn Bool
+    | Logout
     | GotoRegistering
     | Register
     | UpdateMessage String
@@ -100,6 +104,9 @@ update msg model =
 
         LoggedIn success ->
             ( { model | viewing = Chatting }, Cmd.none )
+
+        Logout ->
+            ( { model | viewing = LoggingIn }, logout () )
 
         GotoRegistering ->
             ( { model | viewing = Registering }, Cmd.none )
@@ -174,7 +181,8 @@ roomsView model =
     div []
         [ h1 [] [ text "ChatR" ]
         , div [] rooms
-        , h4 [] [ text <| model.userName ++ ":" ]
+        , button [ onClick Logout ] [ text "Log Out" ]
+        , h4 [] [ text <| model.userName ]
         , input [ placeholder "Message", value model.message, onInput UpdateMessage ] []
         , button [ onClick SendToRoom ] [ text "Send to Room" ]
         , div [ class "log" ]
