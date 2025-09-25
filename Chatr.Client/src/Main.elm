@@ -30,9 +30,12 @@ port sendToRoom : ( String, String, String ) -> Cmd msg
 port onRoomMessage : (String -> msg) -> Sub msg
 
 
+port onErrorMessage : (String -> msg) -> Sub msg
+
+
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Sub.batch [ onLoggedIn LoggedIn, onRoomMessage Received ]
+    Sub.batch [ onLoggedIn LoggedIn, onRoomMessage Received, onErrorMessage ErrorMessage ]
 
 
 main : Program () Model Msg
@@ -59,6 +62,7 @@ type alias Model =
     , rooms : List String
     , currentRoom : String
     , log : List String
+    , error : Maybe String
     }
 
 
@@ -71,6 +75,7 @@ init _ =
       , rooms = [ "Alpha", "Beta" ]
       , currentRoom = "Alpha"
       , log = []
+      , error = Nothing
       }
     , Cmd.none
     )
@@ -79,6 +84,7 @@ init _ =
 type Msg
     = UpdateUserName String
     | UpdatePass String
+    | GotoLogin
     | Login
     | LoggedIn Bool
     | Logout
@@ -88,28 +94,32 @@ type Msg
     | JoinRoom String
     | SendToRoom
     | Received String
+    | ErrorMessage String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UpdateUserName str ->
-            ( { model | userName = str }, Cmd.none )
+            ( { model | userName = str, error = Nothing }, Cmd.none )
 
         UpdatePass str ->
-            ( { model | pass = str }, Cmd.none )
+            ( { model | pass = str, error = Nothing }, Cmd.none )
+
+        GotoLogin ->
+            ( { model | viewing = LoggingIn, error = Nothing }, Cmd.none )
 
         Login ->
             ( model, login ( model.userName, model.pass ) )
 
         LoggedIn success ->
-            ( { model | viewing = Chatting }, Cmd.none )
+            ( { model | viewing = Chatting, error = Nothing }, Cmd.none )
 
         Logout ->
             ( { model | viewing = LoggingIn }, logout () )
 
         GotoRegistering ->
-            ( { model | viewing = Registering }, Cmd.none )
+            ( { model | viewing = Registering, error = Nothing }, Cmd.none )
 
         Register ->
             ( model, register ( model.userName, model.pass ) )
@@ -128,18 +138,29 @@ update msg model =
         Received str ->
             ( { model | log = str :: model.log }, Cmd.none )
 
+        ErrorMessage str ->
+            ( { model | error = Just str }, Cmd.none )
+
 
 view : Model -> Html Msg
 view model =
-    case model.viewing of
-        LoggingIn ->
-            loginView model
+    div []
+        [ case model.viewing of
+            LoggingIn ->
+                loginView model
 
-        Registering ->
-            registerView model
+            Registering ->
+                registerView model
 
-        Chatting ->
-            roomsView model
+            Chatting ->
+                roomsView model
+        , case model.error of
+            Just err ->
+                div [ class "error" ] [ text err ]
+
+            Nothing ->
+                text ""
+        ]
 
 
 loginView : Model -> Html Msg

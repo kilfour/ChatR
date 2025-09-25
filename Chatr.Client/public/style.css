@@ -53,3 +53,13 @@ button.active-room {
     font-weight: bold;
     border: 2px solid #000;
 }
+
+.error {
+    color: #a00;
+    background: #fee;
+    border: 1px solid #a00;
+    padding: 6px 8px;
+    margin: 8px 0;
+    font: 13px/1.4 ui-monospace, monospace;
+    white-space: pre-wrap;
+}

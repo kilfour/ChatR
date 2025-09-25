@@ -62,11 +62,11 @@ app.UseAuthorization();
 app.MapPost("/api/register", (LoginRequest loginRequest, Doorman doorman) =>
 {
     if (string.IsNullOrWhiteSpace(loginRequest.Username))
-        return Results.Problem("Username can not be empty.");
+        return Results.BadRequest(new { error = "Username can not be empty." });
     if (string.IsNullOrWhiteSpace(loginRequest.Password))
-        return Results.Problem("Password can not be empty.");
+        return Results.BadRequest(new { error = "Password can not be empty." });
     if (doorman.Get(loginRequest.Username) != null)
-        return Results.Problem("Username not available.");
+        return Results.BadRequest(new { error = "Username not available." });
     doorman.Set(loginRequest.Username, new Chatterer(loginRequest.Username, loginRequest.Password));
     var token = GetToken(issuer, audience, jwtKey, GetClaims(loginRequest));
     return Results.Json(new { token });
@@ -75,12 +75,12 @@ app.MapPost("/api/register", (LoginRequest loginRequest, Doorman doorman) =>
 app.MapPost("/api/login", (LoginRequest loginRequest, Doorman doorman) =>
 {
     if (string.IsNullOrWhiteSpace(loginRequest.Username))
-        return Results.Problem("Invalid credentials.");
+        return Results.BadRequest(new { error = "Invalid credentials." });
     var chatterer = doorman.Get(loginRequest.Username);
     if (chatterer == null)
-        return Results.Problem("Invalid credentials.");
+        return Results.BadRequest(new { error = "Invalid credentials." });
     if (chatterer.Pass != loginRequest.Password)
-        return Results.Problem("Invalid credentials.");
+        return Results.BadRequest(new { error = "Invalid credentials." });
     var token = GetToken(issuer, audience, jwtKey, GetClaims(loginRequest));
     return Results.Json(new { token });
 });

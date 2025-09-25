@@ -1,5 +1,16 @@
 const apiUrl = "http://localhost:5067";
 
+async function handleResponse(response) {
+    if (!response.ok) {
+        var json = await response.json();
+        app.ports.onErrorMessage.send(json.error);
+        return false;
+    }
+    const data = await response.json();
+    token = data.token;
+    localStorage.setItem("jwt", token);
+    return true;
+}
 
 async function login(username, password) {
     const response = await fetch(`${apiUrl}/api/login`, {
@@ -7,11 +18,7 @@ async function login(username, password) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ username, password })
     });
-    if (!response.ok) return false;
-    const data = await response.json();
-    token = data.token;
-    localStorage.setItem("jwt", token);
-    return true;
+    return handleResponse(response);
 }
 
 async function register(username, password) {
@@ -20,11 +27,7 @@ async function register(username, password) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ username, password })
     });
-    if (!response.ok) return false;
-    const data = await response.json();
-    token = data.token;
-    localStorage.setItem("jwt", token);
-    return true;
+    return handleResponse(response);
 }
 
 
