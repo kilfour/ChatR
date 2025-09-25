@@ -1,5 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text;
 using ChatR.Server;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,9 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 const string CorsPolicy = "Elm";
 
 var builder = WebApplication.CreateBuilder(args);
-const string issuer = "chatr";
-const string audience = "chatr-client";
-const string jwtKey = "dev-super-secret-key-32b-minimum-length!";
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -19,11 +15,11 @@ builder.Services
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidIssuer = issuer,
+            ValidIssuer = AuthEndPoints.issuer,
             ValidateAudience = true,
-            ValidAudience = audience,
+            ValidAudience = AuthEndPoints.audience,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AuthEndPoints.jwtKey)),
             ValidateLifetime = true
         };
         options.Events = new JwtBearerEvents
@@ -59,51 +55,12 @@ app.UseCors(CorsPolicy);
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapPost("/api/register", (LoginRequest loginRequest, Doorman doorman) =>
-{
-    if (string.IsNullOrWhiteSpace(loginRequest.Username))
-        return Results.BadRequest(new { error = "Username can not be empty." });
-    if (string.IsNullOrWhiteSpace(loginRequest.Password))
-        return Results.BadRequest(new { error = "Password can not be empty." });
-    if (doorman.Get(loginRequest.Username) != null)
-        return Results.BadRequest(new { error = "Username not available." });
-    doorman.Set(loginRequest.Username, new Chatterer(loginRequest.Username, loginRequest.Password));
-    var token = GetToken(issuer, audience, jwtKey, GetClaims(loginRequest));
-    return Results.Json(new { token });
-});
+app.MapPost("/api/register", (LoginRequest loginRequest, Doorman doorman)
+    => AuthEndPoints.Register(loginRequest, doorman));
 
-app.MapPost("/api/login", (LoginRequest loginRequest, Doorman doorman) =>
-{
-    if (string.IsNullOrWhiteSpace(loginRequest.Username))
-        return Results.BadRequest(new { error = "Invalid credentials." });
-    var chatterer = doorman.Get(loginRequest.Username);
-    if (chatterer == null)
-        return Results.BadRequest(new { error = "Invalid credentials." });
-    if (chatterer.Pass != loginRequest.Password)
-        return Results.BadRequest(new { error = "Invalid credentials." });
-    var token = GetToken(issuer, audience, jwtKey, GetClaims(loginRequest));
-    return Results.Json(new { token });
-});
+app.MapPost("/api/login", (LoginRequest loginRequest, Doorman doorman)
+    => AuthEndPoints.Login(loginRequest, doorman));
 
 app.MapHub<ChatHub>("/chat").RequireAuthorization();
 app.Run();
 
-static string GetToken(string issuer, string audience, string jwtKey, Claim[] claims)
-{
-    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-    var jwt = new JwtSecurityToken(
-        issuer: issuer,
-        audience: audience,
-        claims: claims,
-        expires: DateTime.UtcNow.AddHours(8),
-        signingCredentials: creds);
-    var token = new JwtSecurityTokenHandler().WriteToken(jwt);
-    return token;
-}
-
-static Claim[] GetClaims(LoginRequest loginRequest)
-    => [
-        new Claim(ClaimTypes.Name, loginRequest.Username),
-        new Claim("uid", Guid.NewGuid().ToString())
-    ];
