@@ -61,6 +61,8 @@ app.MapPost("/api/register", (LoginRequest loginRequest, Doorman doorman)
 app.MapPost("/api/login", (LoginRequest loginRequest, Doorman doorman)
     => AuthEndPoints.Login(loginRequest, doorman));
 
+app.MapGet("/", () => Results.Ok("And it's up."));
+
 app.MapHub<ChatHub>("/chat").RequireAuthorization();
 app.Run();
 
