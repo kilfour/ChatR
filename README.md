@@ -32,4 +32,6 @@ The full distribution, including html and css is at `./ChatR.Client/public`.
   * Navigate to `ChatR.Client/`
   * `npm install`
   * `npm start`
+
+  
 Make sure you load the right `config.*.json` depending on where you want the client to connect to, at the top of chat.js.
