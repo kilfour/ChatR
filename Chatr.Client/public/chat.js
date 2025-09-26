@@ -1,4 +1,5 @@
-const apiUrl = "http://localhost:5067";
+// const apiUrl = "http://localhost:5067";
+const apiUrl = "https://unhappy-cariotta-pequivents-b0afd5e9.koyeb.app";
 
 async function handleResponse(response) {
     if (!response.ok) {
