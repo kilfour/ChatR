@@ -1,5 +1,10 @@
-// const apiUrl = "http://localhost:5067";
-const apiUrl = "https://unhappy-cariotta-pequivents-b0afd5e9.koyeb.app";
+let apiUrl;
+
+async function loadConfig() {
+    const response = await fetch("./config.prod.json");
+    const config = await response.json();
+    apiUrl = config.apiUrl;
+}
 
 async function handleResponse(response) {
     if (!response.ok) {
@@ -31,10 +36,10 @@ async function register(username, password) {
     return handleResponse(response);
 }
 
-
 var app = Elm.Main.init();
 var connection = null;
 (async () => {
+    await loadConfig();
     let token = localStorage.getItem("jwt") || "";
     if (token) {
         await initializeConnection();
