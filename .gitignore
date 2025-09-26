@@ -54,3 +54,5 @@ TestResult.xml
 nunit-*.xml
 
 elm-stuff
+
+temp*.md
