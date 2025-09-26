@@ -55,4 +55,6 @@ nunit-*.xml
 
 elm-stuff
 
+node_modules/
+
 temp*.md

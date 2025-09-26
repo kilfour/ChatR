@@ -66,3 +66,4 @@ app.MapGet("/", () => Results.Ok("And it's up."));
 app.MapHub<ChatHub>("/chat").RequireAuthorization();
 app.Run();
 
+public partial class Program { }
