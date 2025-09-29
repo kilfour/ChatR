@@ -42,8 +42,13 @@ var connection = null;
     await loadConfig();
     let token = localStorage.getItem("jwt") || "";
     if (token) {
-        await initializeConnection();
-        app.ports.onLoggedIn.send(true);
+        try {
+            await initializeConnection();
+            app.ports.onLoggedIn.send(true);
+        }
+        catch {
+            localStorage.removeItem("jwt");
+        }
     }
 
     app.ports.register.subscribe(async ([user, pass]) => {
